@@ -1,0 +1,229 @@
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+
+public class Api2 {
+ static String data;
+ static String name;
+ static String id_name;
+ static String type;
+ static String address;
+ static String lat;
+ static String lng;
+ static String useTime;
+ static String bnm;
+ static String call;
+ static  String stat;
+ static String update;
+ static String now;
+ static String output;
+ static String method;
+ static String delete;
+ static String list_data;
+	public static void main(String[] args) throws IOException {
+        StringBuilder urlBuilder = new StringBuilder("http://apis.data.go.kr/B552584/EvCharger/getChargerInfo"); /*URL*/
+        urlBuilder.append("?" + URLEncoder.encode("serviceKey","UTF-8") + "=BGYZ3GEcNWvV9fWuAwFKo9dMtPwYVng3hWqlYLq9dHcHp5DGZAXeoBQJhD5nRR%2B0XZW8EqPjwkxzm5ph6ZIwqA%3D%3D"); /*Service Key*/
+        urlBuilder.append("&" + URLEncoder.encode("pageNo","UTF-8") + "=" + URLEncoder.encode("1", "UTF-8")); /*페이지번호*/
+        urlBuilder.append("&" + URLEncoder.encode("numOfRows","UTF-8") + "=" + URLEncoder.encode("10", "UTF-8")); /*한 페이지 결과 수 (최소 10, 최대 9999)*/
+        urlBuilder.append("&" + URLEncoder.encode("zcode","UTF-8") + "=" + URLEncoder.encode("11", "UTF-8")); /*시도 코드 (행정구역코드 앞 2자리)*/
+        URL url = new URL(urlBuilder.toString());
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.setRequestProperty("Content-type", "application/json");
+        System.out.println("Response code: " + conn.getResponseCode());
+        BufferedReader rd;
+        if(conn.getResponseCode() >= 200 && conn.getResponseCode() <= 300) {
+            rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        } else {
+            rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
+        }
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = rd.readLine()) != null) {
+            sb.append(line);
+        }
+        rd.close();
+        conn.disconnect();
+       // System.out.println(sb.toString());
+        
+        ArrayList<String> charge_data=new ArrayList<>();
+        int a=7;
+        int start = sb.indexOf("<items>");
+        int end;
+        int stop=0;
+        sb.delete(0, start);
+       
+        while(true) {
+        	 if(stop==7) {
+             	break;
+             } 
+        	 else {             	
+        start = sb.indexOf("<item>");
+        end = sb.indexOf("</item>");
+        data=sb.substring(start,end);
+        sb.delete(start, end+7);       
+        System.out.println("원본 데이터 : "+data);
+        
+        start=data.indexOf("<lat>");
+        end=data.indexOf("</lat>");
+        lat=data.substring(start,end);
+        lat=lat.replace("<lat>", "위도 : ");
+        System.out.println(lat);
+        list_data=lat+"\n";
+        
+        start=data.indexOf("<lng>");
+        end=data.indexOf("</lng>");
+        lng=data.substring(start,end);
+        lng=lng.replace("<lng>", "경도 : ");
+        System.out.println(lng);
+        list_data+=lng+"\n";
+        
+        start=data.indexOf("<statUpdDt>");
+        end=data.indexOf("</statUpdDt>");
+        update=data.substring(start,end);
+        update=update.replace("<statUpdDt>", "갱신 시간 : ");
+        System.out.println(update);
+        list_data+=update+"\n";
+        
+        start=data.indexOf("<statNm>");
+        end=data.indexOf("</statNm>");
+        name=data.substring(start,end);
+        name=name.replace("<statNm>", "이름 : ");
+        System.out.println(name);
+        list_data+=name+"\n";
+        
+        start=data.indexOf("<addr>");
+        end=data.indexOf("</addr>");
+        address=data.substring(start,end);
+        address=address.replace("<addr>", "주소 : ");
+        System.out.println(address);
+        list_data+=address+"\n";
+        
+        start=data.indexOf("<bnm>");
+        end=data.indexOf("</bnm>");
+        id_name=data.substring(start,end);
+        id_name=id_name.replace("<bnm>", "기관명 : ");
+        System.out.println(id_name);
+        list_data+=id_name+"\n";
+        
+        start=data.indexOf("<chgerType>");
+        end=data.indexOf("</chgerType>");
+        type=data.substring(start,end);
+        type=type.replace("<chgerType>", "");
+        if(type.equals("01")) {
+        	type="충전기 타입 : DC차데모";
+        	System.out.println(type);
+        	list_data+=type+"\n";
+        	
+        }else if (type.equals("02")) {
+        	type="충전기 타입 : AC완속";
+        	System.out.println(type);
+        	list_data+=type+"\n";
+        	
+        }else if (type.equals("03")) {
+        	type="충전기 타입 : DC차데모+AC3상";
+        	System.out.println(type);
+        	list_data+=type+"\n";
+        	
+        }else if (type.equals("04")) {
+        	type="충전기 타입 : DC콤보";
+        	System.out.println(type);
+        	list_data+=type+"\n";
+        	
+        }else if (type.equals("05")) {
+        	type="충전기 타입 : DC차데모+DC콤보";
+        	System.out.println(type);
+        	list_data+=type+"\n";
+        	
+        }else if (type.equals("06")) {
+        	type="충전기 타입 : DC차데모+AC3상+DC콤보";
+        	System.out.println(type);
+        	list_data+=type+"\n";
+        	
+        }else {
+        	type="충전기 타입 : AC3상";
+        	System.out.println(type);
+        	list_data+=type+"\n";
+        	
+        }
+        
+        start=data.indexOf("<stat>");
+        end=data.indexOf("</stat>");
+        stat=data.substring(start,end);
+        stat=stat.replace("<stat>", "");
+        if(stat.equals("1")) {
+        	stat="충전기 상태 : 통신 이상";
+        	System.out.println(stat);
+        	list_data+=stat+"\n";
+        	
+        }else if (stat.equals("2")) {
+        	stat="충전기 상태 : 충전 대기";
+        	System.out.println(stat);
+        	list_data+=stat+"\n";
+        	
+        }else if (stat.equals("3")) {
+        	stat="충전기 상태 : 충전 중";
+        	System.out.println(stat);
+        	list_data+=stat+"\n";
+        	
+        }else if (stat.equals("4")) {
+        	stat="충전기 상태 : 운영 중지";
+        	System.out.println(stat);
+        	list_data+=stat+"\n";
+        	
+        }else if (stat.equals("5")) {
+        	stat="충전기 상태 : 점검 중";
+        	System.out.println(stat);
+        	list_data+=stat+"\n";
+        	
+        }else{
+        	stat="충전기 상태 : 상태 미확인";
+        	System.out.println(stat);
+        	list_data+=stat+"\n";
+        	
+        }
+        
+        start=data.indexOf("<output>");
+        end=data.indexOf("</output>");
+        output=data.substring(start,end);
+        output=output.replace("<output>", "충전 용량 : ");
+        System.out.println(output);
+        list_data+=output+"\n";
+        
+        start=data.indexOf("<method>");
+        end=data.indexOf("</method>");
+        method=data.substring(start,end);
+        method=method.replace("<method>", "충전 방식 : ");
+        System.out.println(method);
+        list_data+=method+"\n";
+        
+        start=data.indexOf("<useTime>");
+        end=data.indexOf("</useTime>");
+        useTime=data.substring(start,end);
+        useTime=useTime.replace("<useTime>", "이용가능 시간 : ");
+        System.out.println(useTime);
+        list_data+=useTime+"\n";
+        
+        start=data.indexOf("<busiCall>");
+        end=data.indexOf("</busiCall>");
+        call=data.substring(start,end);
+        call=call.replace("<busiCall>", "연락처 : ");
+        System.out.println(call);
+        list_data+=call+"\n";
+       
+        charge_data.add(list_data);
+        stop=sb.indexOf("</items>");
+        	 }
+        }
+        System.out.println("\narraylist 내용");
+
+        System.out.println(charge_data.get(0));
+       System.out.println(charge_data.get(1));
+       System.out.println(charge_data.get(2));
+    }
+}
