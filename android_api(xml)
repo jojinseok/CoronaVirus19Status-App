@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="135dp"
+            android:layout_height="wrap_content"
+            android:text="갱신" />
+
+
+        <TextView
+            android:id="@+id/Total_API"
+            android:layout_width="match_parent"
+            android:layout_height="265dp"
+            android:text=""
+            android:textSize="8sp" />
+
+
+        <TextView
+            android:id="@+id/Total_API2"
+            android:layout_width="match_parent"
+            android:layout_height="401dp"
+            android:text=""
+            android:textSize="8sp" />
+        <!--도시별 현황-->
+
+
+
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
