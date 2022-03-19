@@ -1,0 +1,295 @@
+package com.example.prac01;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.NetworkOnMainThreadException;
+import android.util.Log;
+import android.widget.Button;
+import android.widget.TextView;
+
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import android.view.View;
+import android.widget.EditText;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserFactory;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+
+public class MainActivity extends AppCompatActivity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        TextView Total_API=(TextView)findViewById(R.id.Total_API);
+        TextView Total_API2=(TextView)findViewById(R.id.Total_API2);
+
+        Button b1 = (Button) findViewById(R.id.button);
+        b1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    new Thread() {
+                        public void run() {
+                            try {
+                                String charge_api=Charge_api();
+                                StringBuffer sb=new StringBuffer();
+                                sb.append(charge_api);
+                                Total_API.append("원본 : "+charge_api);
+                                ArrayList<String> charge_data = new ArrayList<>();
+                                int a = 7;
+                                int start = sb.indexOf("<items>");
+                                int end;
+                                int stop = 0;
+                                int cnt=0;
+                                String data;
+                                String name;
+                                String id_name;
+                                String type;
+                                String address;
+                                String lat;
+                                String lng;
+                                String useTime;
+                                String bnm;
+                                String call;
+                                String stat;
+                                String update;
+                                String output;
+                                String method;
+                                String list_data;
+                                sb.delete(0, start);
+                                while (true) {
+                                    if (stop == 7) {
+                                        break;
+                                    } else {
+                                        start = sb.indexOf("<item>");
+                                        end = sb.indexOf("</item>");
+                                        data = sb.substring(start, end);
+                                        sb.delete(start, end + 7);
+                                        System.out.println("원본 데이터 : " + data);
+
+                                        start = data.indexOf("<lat>");
+                                        end = data.indexOf("</lat>");
+                                        lat = data.substring(start, end);
+                                        lat = lat.replace("<lat>", "위도 : ");
+                                        System.out.println(lat);
+                                        list_data = lat + "\n";
+
+                                        start = data.indexOf("<lng>");
+                                        end = data.indexOf("</lng>");
+                                        lng = data.substring(start, end);
+                                        lng = lng.replace("<lng>", "경도 : ");
+                                        System.out.println(lng);
+                                        list_data += lng + "\n";
+
+                                        start = data.indexOf("<statUpdDt>");
+                                        end = data.indexOf("</statUpdDt>");
+                                        update = data.substring(start, end);
+                                        update = update.replace("<statUpdDt>", "갱신 시간 : ");
+                                        System.out.println(update);
+                                        list_data += update + "\n";
+
+                                        start = data.indexOf("<statNm>");
+                                        end = data.indexOf("</statNm>");
+                                        name = data.substring(start, end);
+                                        name = name.replace("<statNm>", "이름 : ");
+                                        System.out.println(name);
+                                        list_data += name + "\n";
+
+                                        start = data.indexOf("<addr>");
+                                        end = data.indexOf("</addr>");
+                                        address = data.substring(start, end);
+                                        address = address.replace("<addr>", "주소 : ");
+                                        System.out.println(address);
+                                        list_data += address + "\n";
+
+                                        start = data.indexOf("<bnm>");
+                                        end = data.indexOf("</bnm>");
+                                        id_name = data.substring(start, end);
+                                        id_name = id_name.replace("<bnm>", "기관명 : ");
+                                        System.out.println(id_name);
+                                        list_data += id_name + "\n";
+
+                                        start = data.indexOf("<chgerType>");
+                                        end = data.indexOf("</chgerType>");
+                                        type = data.substring(start, end);
+                                        type = type.replace("<chgerType>", "");
+                                        if (type.equals("01")) {
+                                            type = "충전기 타입 : DC차데모";
+                                            System.out.println(type);
+                                            list_data += type + "\n";
+
+                                        } else if (type.equals("02")) {
+                                            type = "충전기 타입 : AC완속";
+                                            System.out.println(type);
+                                            list_data += type + "\n";
+
+                                        } else if (type.equals("03")) {
+                                            type = "충전기 타입 : DC차데모+AC3상";
+                                            System.out.println(type);
+                                            list_data += type + "\n";
+
+                                        } else if (type.equals("04")) {
+                                            type = "충전기 타입 : DC콤보";
+                                            System.out.println(type);
+                                            list_data += type + "\n";
+
+                                        } else if (type.equals("05")) {
+                                            type = "충전기 타입 : DC차데모+DC콤보";
+                                            System.out.println(type);
+                                            list_data += type + "\n";
+
+                                        } else if (type.equals("06")) {
+                                            type = "충전기 타입 : DC차데모+AC3상+DC콤보";
+                                            System.out.println(type);
+                                            list_data += type + "\n";
+
+                                        } else {
+                                            type = "충전기 타입 : AC3상";
+                                            System.out.println(type);
+                                            list_data += type + "\n";
+
+                                        }
+
+                                        start = data.indexOf("<stat>");
+                                        end = data.indexOf("</stat>");
+                                        stat = data.substring(start, end);
+                                        stat = stat.replace("<stat>", "");
+                                        if (stat.equals("1")) {
+                                            stat = "충전기 상태 : 통신 이상";
+                                            System.out.println(stat);
+                                            list_data += stat + "\n";
+
+                                        } else if (stat.equals("2")) {
+                                            stat = "충전기 상태 : 충전 대기";
+                                            System.out.println(stat);
+                                            list_data += stat + "\n";
+
+                                        } else if (stat.equals("3")) {
+                                            stat = "충전기 상태 : 충전 중";
+                                            System.out.println(stat);
+                                            list_data += stat + "\n";
+
+                                        } else if (stat.equals("4")) {
+                                            stat = "충전기 상태 : 운영 중지";
+                                            System.out.println(stat);
+                                            list_data += stat + "\n";
+
+                                        } else if (stat.equals("5")) {
+                                            stat = "충전기 상태 : 점검 중";
+                                            System.out.println(stat);
+                                            list_data += stat + "\n";
+
+                                        } else {
+                                            stat = "충전기 상태 : 상태 미확인";
+                                            System.out.println(stat);
+                                            list_data += stat + "\n";
+
+                                        }
+
+                                        start = data.indexOf("<output>");
+                                        end = data.indexOf("</output>");
+                                        output = data.substring(start, end);
+                                        output = output.replace("<output>", "충전 용량 : ");
+                                        System.out.println(output);
+                                        list_data += output + "\n";
+
+                                        start = data.indexOf("<method>");
+                                        end = data.indexOf("</method>");
+                                        method = data.substring(start, end);
+                                        method = method.replace("<method>", "충전 방식 : ");
+                                        System.out.println(method);
+                                        list_data += method + "\n";
+
+                                        start = data.indexOf("<useTime>");
+                                        end = data.indexOf("</useTime>");
+                                        useTime = data.substring(start, end);
+                                        useTime = useTime.replace("<useTime>", "이용가능 시간 : ");
+                                        System.out.println(useTime);
+                                        list_data += useTime + "\n";
+
+                                        start = data.indexOf("<busiCall>");
+                                        end = data.indexOf("</busiCall>");
+                                        call = data.substring(start, end);
+                                        call = call.replace("<busiCall>", "연락처 : ");
+                                        System.out.println(call);
+                                        list_data += call + "\n";
+
+                                        charge_data.add(list_data);
+                                        stop = sb.indexOf("</items>");
+
+                                        Total_API2.append(charge_data.get(cnt));
+                                        cnt++;
+
+                                    }
+                                }
+
+
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+                    }.start();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+
+    private String Charge_api() {
+        String data = "";
+        HttpURLConnection conn = null;
+        InputStreamReader isr = null;
+        BufferedReader rd = null;
+        try{
+            StringBuilder urlBuilder = new StringBuilder("http://apis.data.go.kr/B552584/EvCharger/getChargerInfo"); /*URL*/
+            urlBuilder.append("?" + URLEncoder.encode("serviceKey","UTF-8") + "=BGYZ3GEcNWvV9fWuAwFKo9dMtPwYVng3hWqlYLq9dHcHp5DGZAXeoBQJhD5nRR%2B0XZW8EqPjwkxzm5ph6ZIwqA%3D%3D"); /*Service Key*/
+            urlBuilder.append("&" + URLEncoder.encode("pageNo","UTF-8") + "=" + URLEncoder.encode("1", "UTF-8")); /*페이지번호*/
+            urlBuilder.append("&" + URLEncoder.encode("numOfRows","UTF-8") + "=" + URLEncoder.encode("10", "UTF-8")); /*한 페이지 결과 수 (최소 10, 최대 9999)*/
+            urlBuilder.append("&" + URLEncoder.encode("zcode","UTF-8") + "=" + URLEncoder.encode("11", "UTF-8")); /*시도 코드 (행정구역코드 앞 2자리)*/
+            URL url = new URL(urlBuilder.toString());
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Content-type", "application/json");
+            System.out.println("Response code: " + conn.getResponseCode());
+
+            if(conn.getResponseCode() >= 200 && conn.getResponseCode() <= 300) {
+                rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            } else {
+                rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
+            }
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = rd.readLine()) != null) {
+                sb.append(line);
+            }
+            data=sb.toString();
+        }catch(Exception e){
+            e.printStackTrace();
+        }finally{
+            if(conn != null){
+                try{conn.disconnect();}catch(Exception e){}
+            }
+
+            if(isr != null){
+                try{isr.close();}catch(Exception e){}
+            }
+
+            if(rd != null){
+                try{rd.close();}catch(Exception e){}
+            }
+        }
+        return data;
+    }
+}
